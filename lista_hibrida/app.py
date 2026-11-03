@@ -32,16 +32,19 @@ with aba_inserir:
     with st.form("insercao", clear_on_submit=True):
         nova = st.number_input("Número inteiro para inserir", value=0, step=1, format="%d")
         enviar = st.form_submit_button("Inserir chave")
+
     if enviar:
-    ok, mensagem = lista.inserir(int(nova))
+        ok, mensagem = lista.inserir(int(nova))
+        st.session_state.historico.append(f"Inserção {int(nova)}: {mensagem}")
+        st.session_state.mensagem_insercao = (ok, mensagem)
+        st.rerun()
 
-    st.session_state.historico.append(
-        f"Inserção {int(nova)}: {mensagem}"
-    )
+    if "mensagem_insercao" in st.session_state:
+        ok, mensagem = st.session_state.pop("mensagem_insercao")
+        (st.success if ok else st.warning)(mensagem)
 
-    st.session_state.mensagem_insercao = (ok, mensagem)
-
-    st.rerun()
+    st.write("**Cauda atual (ordem de inserção):**", lista.cauda if lista.cauda else "Vazia")
+    st.progress(len(lista.cauda) / lista.capacidade_cauda)
 
 if "mensagem_insercao" in st.session_state:
     ok, mensagem = st.session_state.pop("mensagem_insercao")
